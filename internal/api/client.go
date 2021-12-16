@@ -64,5 +64,16 @@ func FetchForecast() error {
 		fmt.Println()
 	}
 
+	if len(w.Product.Time) == 2 {
+		f := Forecast{
+			From:         w.Product.Time[0].From,
+			To:           w.Product.Time[0].To,
+			ForecastData: w.Product.Time[0].Location.ForecastData,
+			RainfallData: w.Product.Time[1].Location.RainfallData,
+		}
+
+		fmt.Printf("%+v\n", f)
+	}
+
 	return nil
 }

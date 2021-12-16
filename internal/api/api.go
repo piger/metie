@@ -11,9 +11,10 @@ type Product struct {
 }
 
 type Time struct {
-	From     time.Time `xml:"from,attr"`
-	To       time.Time `xml:"to,attr"`
-	Location Location  `xml:"location"`
+	From time.Time `xml:"from,attr"`
+	To   time.Time `xml:"to,attr"`
+
+	Location Location `xml:"location"`
 }
 
 type Location struct {
@@ -121,4 +122,11 @@ type Precipitation struct {
 type Symbol struct {
 	ID     string `xml:"id,attr"`
 	Number int32  `xml:"number,attr"`
+}
+
+type Forecast struct {
+	From time.Time
+	To   time.Time
+	ForecastData
+	RainfallData
 }
