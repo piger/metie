@@ -21,6 +21,11 @@ type Location struct {
 	Latitude  float32 `xml:"latitude,attr"`
 	Longitude float32 `xml:"longitude,attr"`
 
+	ForecastData
+	RainfallData
+}
+
+type ForecastData struct {
 	Temperature         Temperature         `xml:"temperature"`
 	WindDirection       WindDirection       `xml:"windDirection"`
 	WindSpeed           WindSpeed           `xml:"windSpeed"`
@@ -32,8 +37,11 @@ type Location struct {
 	MediumClouds        MediumClouds        `xml:"mediumClouds"`
 	HighClouds          HighClouds          `xml:"highClouds"`
 	DewpointTemperature DewpointTemperature `xml:"dewpointTemperature"`
-	Precipitation       Precipitation       `xml:"precipitation"`
-	Symbol              Symbol              `xml:"symbol"`
+}
+
+type RainfallData struct {
+	Precipitation Precipitation `xml:"precipitation"`
+	Symbol        Symbol        `xml:"symbol"`
 }
 
 func (l *Location) IsRain() bool {
