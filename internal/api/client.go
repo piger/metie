@@ -21,7 +21,7 @@ type Forecast struct {
 	RainfallData
 }
 
-func FetchForecast(lat, long float64) (*Forecast, error) {
+func prepareURL(lat, long float64) string {
 	url := baseURL
 	now := time.Now()
 
@@ -35,6 +35,12 @@ func FetchForecast(lat, long float64) (*Forecast, error) {
 	for pattern, repl := range subs {
 		url = strings.Replace(url, pattern, repl, 1)
 	}
+
+	return url
+}
+
+func FetchForecast(lat, long float64) (*Forecast, error) {
+	url := prepareURL(lat, long)
 
 	resp, err := http.Get(url)
 	if err != nil {
