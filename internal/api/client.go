@@ -9,13 +9,10 @@ import (
 	"time"
 )
 
-var (
-	baseURL string = "http://metwdb-openaccess.ichec.ie/metno-wdb2ts/locationforecast?lat=${lat};long=${long};from=${now};to=${now}"
+const (
+	baseURL        = "http://metwdb-openaccess.ichec.ie/metno-wdb2ts/locationforecast?lat=${lat};long=${long};from=${now};to=${later}"
+	dateTimeFormat = "2006-01-02T15:04"
 )
-
-// const url = `http://metwdb-openaccess.ichec.ie/metno-wdb2ts/locationforecast?lat=${node.lat};long=${node.long};from=${now};to=${now}`;
-// 2018-11-10T02:00
-// 0.0,0.0
 
 func FetchForecast() error {
 	lat := 0.0
@@ -23,15 +20,27 @@ func FetchForecast() error {
 	now := time.Now()
 
 	url := baseURL
-	url = strings.Replace(url, "${lat}", fmt.Sprintf("%g", lat), 1)
-	url = strings.Replace(url, "${long}", fmt.Sprintf("%g", long), 1)
-	url = strings.Replace(url, "${now}", now.Format(time.RFC3339), 1)
+	subs := map[string]string{
+		"${lat}":   fmt.Sprintf("%g", lat),
+		"${long}":  fmt.Sprintf("%g", long),
+		"${now}":   now.Format(dateTimeFormat),
+		"${later}": now.Add(1 * time.Hour).Format(dateTimeFormat),
+	}
+
+	for pattern, repl := range subs {
+		url = strings.Replace(url, pattern, repl, 1)
+	}
 
 	resp, err := http.Get(url)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return fmt.Errorf("bad status code: %d", resp.StatusCode)
+	}
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
