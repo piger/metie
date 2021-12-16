@@ -45,11 +45,6 @@ type RainfallData struct {
 	Symbol        Symbol        `xml:"symbol"`
 }
 
-func (l *Location) IsRain() bool {
-	// rainfall forecast don't have temperature data
-	return l.Temperature.Unit == ""
-}
-
 type Temperature struct {
 	ID    string  `xml:"id,attr"`
 	Unit  string  `xml:"unit,attr"`
@@ -122,11 +117,4 @@ type Precipitation struct {
 type Symbol struct {
 	ID     string `xml:"id,attr"`
 	Number int32  `xml:"number,attr"`
-}
-
-type Forecast struct {
-	From time.Time
-	To   time.Time
-	ForecastData
-	RainfallData
 }

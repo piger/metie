@@ -14,12 +14,17 @@ const (
 	dateTimeFormat = "2006-01-02T15:04"
 )
 
-func FetchForecast() error {
-	lat := 0.0
-	long := 0.0
+type Forecast struct {
+	From time.Time
+	To   time.Time
+	ForecastData
+	RainfallData
+}
+
+func FetchForecast(lat, long float64) (*Forecast, error) {
+	url := baseURL
 	now := time.Now()
 
-	url := baseURL
 	subs := map[string]string{
 		"${lat}":   fmt.Sprintf("%g", lat),
 		"${long}":  fmt.Sprintf("%g", long),
@@ -33,47 +38,34 @@ func FetchForecast() error {
 
 	resp, err := http.Get(url)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 200 {
-		return fmt.Errorf("bad status code: %d", resp.StatusCode)
+		return nil, fmt.Errorf("bad status code: %d", resp.StatusCode)
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	var w Weatherdata
 	if err := xml.Unmarshal(body, &w); err != nil {
-		return err
+		return nil, err
 	}
 
-	for _, f := range w.Product.Time {
-		fmt.Printf("From: %s, To: %s\n", f.From, f.To)
-		if f.Location.IsRain() {
-			fmt.Printf("Rain: %f %f %f %f\n",
-				f.Location.Precipitation.Value, f.Location.Precipitation.MinValue,
-				f.Location.Precipitation.MaxValue, f.Location.Precipitation.Probability)
-		} else {
-			fmt.Printf("temperature: %.2fC\n", f.Location.Temperature.Value)
-			fmt.Printf("humidity: %.2f%%\n", f.Location.Humidity.Value)
-		}
-		fmt.Println()
+	if len(w.Product.Time) != 2 {
+		return nil, fmt.Errorf("malformed result: missing rainfall (len = %d)", len(w.Product.Time))
 	}
 
-	if len(w.Product.Time) == 2 {
-		f := Forecast{
-			From:         w.Product.Time[0].From,
-			To:           w.Product.Time[0].To,
-			ForecastData: w.Product.Time[0].Location.ForecastData,
-			RainfallData: w.Product.Time[1].Location.RainfallData,
-		}
-
-		fmt.Printf("%+v\n", f)
+	f := Forecast{
+		From:         w.Product.Time[0].From,
+		To:           w.Product.Time[0].To,
+		ForecastData: w.Product.Time[0].Location.ForecastData,
+		RainfallData: w.Product.Time[1].Location.RainfallData,
 	}
 
-	return nil
+	return &f, nil
 }
