@@ -22,8 +22,8 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Printf("Forecast %s - %s\n", fc.From, fc.To)
-	fmt.Printf("Temperature: %.2f °C\n", fc.Temperature.Value)
-	fmt.Printf("Humidity: %.2f%%\n", fc.Humidity.Value)
-	fmt.Printf("Wind speed: %.2f m/s\n", fc.WindSpeed.Speed)
+	fmt.Printf("Forecast %s - %s (%s)\n", fc.From, fc.To, fc.Time)
+	fmt.Printf("Temperature: %.2f °C\n", fc.Temperature)
+	fmt.Printf("Humidity: %.2f%%\n", fc.Humidity)
+	fmt.Printf("Wind speed: %.2f m/s\n", fc.WindSpeedMps)
 }
