@@ -77,7 +77,7 @@ func FetchForecast(lat, long float64) (*Forecast, error) {
 		return nil, err
 	}
 
-	if len(w.Product.Time) != 2 {
+	if len(w.Product.Time) < 2 {
 		return nil, fmt.Errorf("malformed result: missing rainfall (len = %d)", len(w.Product.Time))
 	}
 
