@@ -11,9 +11,15 @@ import (
 )
 
 var (
-	lat      = flag.Float64("lat", 0.0, "Latitude")
-	long     = flag.Float64("long", 0.0, "Longitude")
-	dbconfig = flag.String("dbconfig", "", "Path to a file containing a DB URI")
+	lat         = flag.Float64("lat", 0.0, "Latitude")
+	long        = flag.Float64("long", 0.0, "Longitude")
+	dbconfig    = flag.String("dbconfig", "", "Path to a file containing a DB URI")
+	showVersion = flag.Bool("version", false, "Show program's version")
+
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+	builtBy = "unknown"
 )
 
 func run() error {
@@ -45,6 +51,10 @@ func run() error {
 
 func main() {
 	flag.Parse()
+	if *showVersion {
+		fmt.Printf("metie %s (commit=%s, built at %s by %s)\n", version, commit, date, builtBy)
+		return
+	}
 
 	if err := run(); err != nil {
 		log.Fatalf("ERROR: %s", err)
