@@ -64,13 +64,13 @@ func FetchForecast(lat, long float64) (*Forecast, error) {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("bad status code: %d", resp.StatusCode)
-	}
-
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
+	}
+
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("bad status code: %d (%s)", resp.StatusCode, string(body))
 	}
 
 	var w Weatherdata
