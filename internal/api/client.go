@@ -20,6 +20,7 @@ type Forecast struct {
 	To                time.Time
 	Temperature       float32
 	WindDirection     float32
+	WindDirectionName string
 	WindSpeedMps      float32
 	WindSpeedBeaufort int
 	SolarRadiation    float32
@@ -91,6 +92,7 @@ func FetchForecast(lat, long float64) (*Forecast, error) {
 		To:                root.To,
 		Temperature:       general.Temperature.Value,
 		WindDirection:     general.WindDirection.Degrees,
+		WindDirectionName: general.WindDirection.Name,
 		WindSpeedMps:      general.WindSpeed.Speed,
 		WindSpeedBeaufort: general.WindSpeed.Beaufort,
 		SolarRadiation:    general.GlobalRadiation.Value,

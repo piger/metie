@@ -37,6 +37,7 @@ func run() error {
 		fmt.Printf("Temperature: %.2f °C\n", fc.Temperature)
 		fmt.Printf("Humidity: %.2f%%\n", fc.Humidity)
 		fmt.Printf("Wind speed: %.2f m/s\n", fc.WindSpeedMps)
+		fmt.Printf("Wind direction: %.2f %s\n", fc.WindDirection, fc.WindDirectionName)
 	}
 
 	return nil
