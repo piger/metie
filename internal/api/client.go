@@ -57,8 +57,11 @@ func prepareURL(lat, long float64) string {
 
 func FetchForecast(lat, long float64) (*Forecast, error) {
 	url := prepareURL(lat, long)
+	client := http.Client{
+		Timeout: 1 * time.Minute,
+	}
 
-	resp, err := http.Get(url)
+	resp, err := client.Get(url)
 	if err != nil {
 		return nil, err
 	}
