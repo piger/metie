@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/piger/metie/internal/api"
 	"github.com/piger/metie/internal/db"
@@ -51,6 +52,11 @@ func run() error {
 
 func main() {
 	flag.Parse()
+
+	if *lat == 0.0 || *long == 0.0 {
+		fmt.Fprintln(os.Stderr, "error: you must specify both -lat and -long")
+		os.Exit(1)
+	}
 	if *showVersion {
 		fmt.Printf("metie %s (commit=%s, built at %s by %s)\n", version, commit, date, builtBy)
 		return
