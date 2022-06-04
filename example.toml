@@ -1,0 +1,7 @@
+# Example configuration file for `metie`.
+
+latitude = 41.8902102
+longitude = 12.4900422
+DSN = "postgres://username:password@localhost/forecast"
+table = "weather_forecast"
+interval = "30m"

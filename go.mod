@@ -2,7 +2,10 @@ module github.com/piger/metie
 
 go 1.18
 
-require github.com/jackc/pgx/v4 v4.14.1
+require (
+	github.com/jackc/pgx/v4 v4.14.1
+	github.com/pelletier/go-toml/v2 v2.0.1
+)
 
 require (
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
