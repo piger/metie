@@ -24,7 +24,9 @@ var (
 )
 
 func run() error {
-	fc, err := api.FetchForecast(*lat, *long)
+	ctx := context.Background()
+
+	fc, err := api.FetchForecast(ctx, *lat, *long)
 	if err != nil {
 		return fmt.Errorf("cannot fetch forecast: %s", err)
 	}
@@ -35,7 +37,6 @@ func run() error {
 			return fmt.Errorf("cannot read db config file: %s", err)
 		}
 
-		ctx := context.Background()
 		if err := db.WriteRow(ctx, fc, config, "weather_forecast"); err != nil {
 			return fmt.Errorf("cannot write to DB: %s", err)
 		}

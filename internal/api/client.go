@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"encoding/xml"
 	"fmt"
 	"io"
@@ -55,13 +56,18 @@ func prepareURL(lat, long float64) string {
 	return url
 }
 
-func FetchForecast(lat, long float64) (*Forecast, error) {
+func FetchForecast(ctx context.Context, lat, long float64) (*Forecast, error) {
 	url := prepareURL(lat, long)
 	client := http.Client{
 		Timeout: 1 * time.Minute,
 	}
 
-	resp, err := client.Get(url)
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
