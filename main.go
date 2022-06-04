@@ -76,28 +76,33 @@ func readConfig(filename string) (*Options, error) {
 	return &opts, nil
 }
 
+func doWork(ctx context.Context, opts *Options) {
+	fc, err := api.FetchForecast(ctx, opts.Latitude, opts.Longitude)
+	if err != nil {
+		log.Printf("error: cannot fetch forecast: %s", err)
+		return
+	}
+
+	if err := db.WriteRow(ctx, fc, opts.DSN, opts.Table); err != nil {
+		log.Printf("error: cannot write row to database: %s", err)
+	}
+}
+
 func runI(opts *Options) error {
+	ctx := context.Background()
+	doWork(ctx, opts)
+
 	tick := time.NewTicker(time.Duration(opts.Interval))
 	defer tick.Stop()
 
 	sigch := make(chan os.Signal, 1)
 	signal.Notify(sigch, syscall.SIGTERM, syscall.SIGINT)
 
-	ctx := context.Background()
-
 Loop:
 	for {
 		select {
 		case <-tick.C:
-			fc, err := api.FetchForecast(ctx, opts.Latitude, opts.Longitude)
-			if err != nil {
-				log.Printf("error: cannot fetch forecast: %s", err)
-				continue
-			}
-
-			if err := db.WriteRow(ctx, fc, opts.DSN, opts.Table); err != nil {
-				log.Printf("error: cannot write row to database: %s", err)
-			}
+			doWork(ctx, opts)
 		case sig := <-sigch:
 			log.Printf("signal received: %s", sig)
 			break Loop
