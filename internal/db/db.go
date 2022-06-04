@@ -3,8 +3,6 @@ package db
 import (
 	"context"
 	"fmt"
-	"io"
-	"os"
 	"strings"
 
 	"github.com/jackc/pgx/v4"
@@ -27,24 +25,6 @@ var columnNames = []string{
 	"dewpoint",
 	"rain",
 	"rain_probability",
-}
-
-func ReadConfig(filename string) (string, error) {
-	fh, err := os.Open(filename)
-	if err != nil {
-		return "", err
-	}
-	defer fh.Close()
-
-	data, err := io.ReadAll(fh)
-	if err != nil {
-		return "", err
-	}
-
-	result := string(data)
-	result = strings.Trim(result, "\n")
-
-	return result, nil
 }
 
 func makeColumnString(names []string) string {
