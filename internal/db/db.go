@@ -68,7 +68,7 @@ func WriteRow(ctx context.Context, fc *api.Forecast, dburl, table string) error 
 			resolver := net.Resolver{
 				Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
 					d := net.Dialer{}
-					return d.DialContext(ctx, network, "100.100.100.100")
+					return d.DialContext(ctx, network, "100.100.100.100:53")
 				},
 			}
 			pgConfig.LookupFunc = resolver.LookupHost
