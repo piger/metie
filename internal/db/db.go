@@ -2,11 +2,14 @@ package db
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/jackc/pgx/v4"
 	"github.com/piger/metie/internal/api"
+	"golang.org/x/net/proxy"
 )
 
 var columnNames = []string{
@@ -41,7 +44,26 @@ func makeValuesString(names []string) string {
 }
 
 func WriteRow(ctx context.Context, fc *api.Forecast, dburl, table string) error {
-	conn, err := pgx.Connect(ctx, dburl)
+	pgConfig, err := pgx.ParseConfig(dburl)
+	if err != nil {
+		return err
+	}
+
+	socksProxy := os.Getenv("SOCKS_PROXY")
+	if socksProxy != "" {
+		dialer, err := proxy.SOCKS5("tcp", socksProxy, nil, proxy.Direct)
+		if err != nil {
+			return err
+		}
+
+		if contextDialer, ok := dialer.(proxy.ContextDialer); ok {
+			pgConfig.DialFunc = contextDialer.DialContext
+		} else {
+			return errors.New("failed type assertion into ContextDialer")
+		}
+	}
+
+	conn, err := pgx.ConnectConfig(ctx, pgConfig)
 	if err != nil {
 		return err
 	}

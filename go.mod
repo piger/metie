@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/jackc/pgx/v4 v4.18.1
 	github.com/pelletier/go-toml/v2 v2.1.0
+	golang.org/x/net v0.19.0
 )
 
 require (
