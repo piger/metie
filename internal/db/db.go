@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"net"
 	"os"
 	"strings"
 
@@ -61,17 +60,6 @@ func WriteRow(ctx context.Context, fc *api.Forecast, dburl, table string) error 
 			pgConfig.DialFunc = contextDialer.DialContext
 		} else {
 			return errors.New("failed type assertion into ContextDialer")
-		}
-
-		// if the DB host is a Tailscale host, redirect DNS lookups to MagicDNS.
-		if strings.HasSuffix(pgConfig.Host, ".ts.net") {
-			resolver := net.Resolver{
-				Dial: func(ctx context.Context, network, address string) (net.Conn, error) {
-					d := net.Dialer{}
-					return d.DialContext(ctx, network, "100.100.100.100")
-				},
-			}
-			pgConfig.LookupFunc = resolver.LookupHost
 		}
 	}
 
