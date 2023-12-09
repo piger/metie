@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"io"
 	"os"
 	"time"
 
@@ -36,13 +35,8 @@ func readConfig(filename string) (*Options, error) {
 	}
 	defer fh.Close()
 
-	data, err := io.ReadAll(fh)
-	if err != nil {
-		return nil, err
-	}
-
 	var opts Options
-	if err := toml.Unmarshal(data, &opts); err != nil {
+	if err := toml.NewDecoder(fh).Decode(&opts); err != nil {
 		return nil, err
 	}
 

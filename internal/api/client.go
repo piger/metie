@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/xml"
 	"fmt"
-	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -73,17 +72,12 @@ func FetchForecast(ctx context.Context, lat, long float64) (*Forecast, error) {
 	}
 	defer resp.Body.Close()
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("bad status code: %d (%s)", resp.StatusCode, string(body))
+		return nil, fmt.Errorf("unexpected response code: %d", resp.StatusCode)
 	}
 
 	var w Weatherdata
-	if err := xml.Unmarshal(body, &w); err != nil {
+	if err := xml.NewDecoder(resp.Body).Decode(&w); err != nil {
 		return nil, err
 	}
 
