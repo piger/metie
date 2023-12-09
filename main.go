@@ -37,7 +37,7 @@ func doWork(ctx context.Context, opts *Options) {
 	}
 }
 
-func run(opts *Options) {
+func runForever(opts *Options) error {
 	ctx := context.Background()
 	doWork(ctx, opts)
 
@@ -57,6 +57,8 @@ Loop:
 			break Loop
 		}
 	}
+
+	return nil
 }
 
 func runOnce(opts *Options) error {
@@ -74,13 +76,12 @@ func runOnce(opts *Options) error {
 	return nil
 }
 
-func main() {
+func run() error {
 	flag.Parse()
 
 	opts, err := readConfig(*configFile)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error: invalid configuration: %s", err)
-		os.Exit(1)
+		return fmt.Errorf("error: invalid configuration: %w", err)
 	}
 
 	if *showVersion {
@@ -94,15 +95,18 @@ func main() {
 				fmt.Printf("https://github.com/piger/metie/commit/%s (modified: %v)\n", revision, modified)
 			}
 		}
-		return
+		return nil
 	}
 
 	if *dryrun {
-		if err := runOnce(opts); err != nil {
-			fmt.Fprintf(os.Stderr, "error: %s", err)
-			os.Exit(1)
-		}
+		return runOnce(opts)
 	}
 
-	run(opts)
+	return runForever(opts)
+}
+
+func main() {
+	if err := run(); err != nil {
+		log.Fatal(err)
+	}
 }
