@@ -84,7 +84,16 @@ func main() {
 	}
 
 	if *showVersion {
-		fmt.Printf("metie %s (commit=%s, built at %s by %s)\n", version, commit, date, builtBy)
+		if commit != "none" {
+			fmt.Printf("metie %s (commit=%s, built at %s by %s)\n", version, commit, date, builtBy)
+		} else {
+			revision, modified, ok := buildinfo()
+			if !ok {
+				fmt.Printf("unknown revision\n")
+			} else {
+				fmt.Printf("https://github.com/piger/metie/commit/%s (modified: %v)\n", revision, modified)
+			}
+		}
 		return
 	}
 
