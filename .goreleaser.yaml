@@ -22,13 +22,7 @@ builds:
       - goos: linux
         goarch: arm64
 archives:
-  - replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
-      386: i386
-      amd64: x86_64
-    wrap_in_directory: "true"
+  - wrap_in_directory: "true"
     files:
       - example.toml
       - metie.service
