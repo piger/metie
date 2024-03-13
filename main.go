@@ -38,22 +38,26 @@ func doWork(ctx context.Context, opts *Options) {
 }
 
 func runForever(opts *Options) error {
-	ctx := context.Background()
-	doWork(ctx, opts)
-
 	tick := time.NewTicker(time.Duration(opts.Interval))
 	defer tick.Stop()
 
-	sigch := make(chan os.Signal, 1)
-	signal.Notify(sigch, syscall.SIGTERM, syscall.SIGINT)
+	ctx, ctxCancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer ctxCancel()
+
+	// buffered channel used to trigger the first execution of the task
+	firstRun := make(chan struct{}, 1)
+	firstRun <- struct{}{}
 
 Loop:
 	for {
 		select {
+		case <-firstRun:
+			doWork(ctx, opts)
 		case <-tick.C:
 			doWork(ctx, opts)
-		case sig := <-sigch:
-			log.Printf("signal received: %s", sig)
+		case <-ctx.Done():
+			ctxCancel()
+			log.Println("signal received; exiting.")
 			break Loop
 		}
 	}
