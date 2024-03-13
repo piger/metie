@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/xml"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -35,6 +36,47 @@ type Forecast struct {
 	RainMin           float32
 	RainMax           float32
 	RainProbability   float32
+}
+
+func parseForecast(rc io.ReadCloser) (*Forecast, error) {
+	var wd Weatherdata
+	if err := xml.NewDecoder(rc).Decode(&wd); err != nil {
+		return nil, fmt.Errorf("error decoding XML data: %w", err)
+	}
+
+	// validation
+	if len(wd.Product.Time) < 2 {
+		return nil, fmt.Errorf("malformed result: missing rainfall (len = %d)", len(wd.Product.Time))
+	}
+
+	root := wd.Product.Time[0]
+	general := wd.Product.Time[0].Location.ForecastData
+	rainfall := wd.Product.Time[1].Location.RainfallData
+
+	fc := Forecast{
+		Time:              time.Now().UTC(),
+		From:              root.From,
+		To:                root.To,
+		Temperature:       general.Temperature.Value,
+		WindDirection:     general.WindDirection.Degrees,
+		WindDirectionName: general.WindDirection.Name,
+		WindSpeedMps:      general.WindSpeed.Speed,
+		WindSpeedBeaufort: general.WindSpeed.Beaufort,
+		SolarRadiation:    general.GlobalRadiation.Value,
+		Humidity:          general.Humidity.Value,
+		Pressure:          general.Pressure.Value,
+		Cloudiness:        general.Cloudiness.Percent,
+		CloudsLow:         general.LowClouds.Percent,
+		CloudsMedium:      general.MediumClouds.Percent,
+		CloudsHigh:        general.HighClouds.Percent,
+		Dewpoint:          general.DewpointTemperature.Value,
+		RainMm:            rainfall.Precipitation.Value,
+		RainMin:           rainfall.Precipitation.MinValue,
+		RainMax:           rainfall.Precipitation.MaxValue,
+		RainProbability:   rainfall.Precipitation.Probability,
+	}
+
+	return &fc, nil
 }
 
 func prepareURL(lat, long float64) string {
@@ -76,41 +118,5 @@ func FetchForecast(ctx context.Context, lat, long float64) (*Forecast, error) {
 		return nil, fmt.Errorf("unexpected response code: %d", resp.StatusCode)
 	}
 
-	var w Weatherdata
-	if err := xml.NewDecoder(resp.Body).Decode(&w); err != nil {
-		return nil, err
-	}
-
-	if len(w.Product.Time) < 2 {
-		return nil, fmt.Errorf("malformed result: missing rainfall (len = %d)", len(w.Product.Time))
-	}
-
-	root := w.Product.Time[0]
-	general := w.Product.Time[0].Location.ForecastData
-	rainfall := w.Product.Time[1].Location.RainfallData
-
-	f := Forecast{
-		Time:              time.Now().UTC(),
-		From:              root.From,
-		To:                root.To,
-		Temperature:       general.Temperature.Value,
-		WindDirection:     general.WindDirection.Degrees,
-		WindDirectionName: general.WindDirection.Name,
-		WindSpeedMps:      general.WindSpeed.Speed,
-		WindSpeedBeaufort: general.WindSpeed.Beaufort,
-		SolarRadiation:    general.GlobalRadiation.Value,
-		Humidity:          general.Humidity.Value,
-		Pressure:          general.Pressure.Value,
-		Cloudiness:        general.Cloudiness.Percent,
-		CloudsLow:         general.LowClouds.Percent,
-		CloudsMedium:      general.MediumClouds.Percent,
-		CloudsHigh:        general.HighClouds.Percent,
-		Dewpoint:          general.DewpointTemperature.Value,
-		RainMm:            rainfall.Precipitation.Value,
-		RainMin:           rainfall.Precipitation.MinValue,
-		RainMax:           rainfall.Precipitation.MaxValue,
-		RainProbability:   rainfall.Precipitation.Probability,
-	}
-
-	return &f, nil
+	return parseForecast(resp.Body)
 }
