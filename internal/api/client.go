@@ -6,13 +6,39 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 	"time"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 )
 
 const (
 	baseURL        = "http://metwdb-openaccess.ichec.ie/metno-wdb2ts/locationforecast?lat=${lat};long=${long};from=${now};to=${later}"
 	dateTimeFormat = "2006-01-02T15:04"
+)
+
+var (
+	successes = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "metie_successes_total",
+		Help: "The total number of successful requests",
+	})
+	errors = promauto.NewCounterVec(
+		prometheus.CounterOpts{
+			Name: "metie_errors_total",
+			Help: "The total number of failed requests",
+		},
+		[]string{"reason"},
+	)
+	responseTimes = promauto.NewHistogramVec(
+		prometheus.HistogramOpts{
+			Name:    "metie_response_time_seconds",
+			Help:    "The response time of the server",
+			Buckets: prometheus.DefBuckets,
+		},
+		[]string{"status_code"},
+	)
 )
 
 type Forecast struct {
@@ -108,15 +134,27 @@ func FetchForecast(ctx context.Context, lat, long float64) (*Forecast, error) {
 		return nil, err
 	}
 
+	start := time.Now()
 	resp, err := client.Do(req)
 	if err != nil {
+		errors.With(prometheus.Labels{"reason": "network"}).Inc()
 		return nil, err
 	}
 	defer resp.Body.Close()
 
+	responseTimes.With(prometheus.Labels{"status_code": strconv.Itoa(resp.StatusCode)}).Observe(float64(time.Since(start).Seconds()))
+
 	if resp.StatusCode != 200 {
+		errors.With(prometheus.Labels{"reason": "http"}).Inc()
 		return nil, fmt.Errorf("unexpected response code: %d", resp.StatusCode)
 	}
 
-	return parseForecast(resp.Body)
+	fc, err := parseForecast(resp.Body)
+	if err != nil {
+		errors.With(prometheus.Labels{"reason": "parsing"}).Inc()
+		return nil, fmt.Errorf("error parsing response: %w", err)
+	}
+
+	successes.Inc()
+	return fc, nil
 }

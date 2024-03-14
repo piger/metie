@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -12,10 +13,14 @@ import (
 
 	"github.com/piger/metie/internal/api"
 	"github.com/piger/metie/internal/db"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 var (
 	configFile  = flag.String("config", "metie.toml", "Path to the configuration file")
+	metricsAddr = flag.String("metrics", ":10333", "Address:port for metrics endpoint")
 	dryrun      = flag.Bool("dryrun", false, "Run once and exit")
 	showVersion = flag.Bool("version", false, "Show program's version")
 
@@ -23,6 +28,11 @@ var (
 	commit  = "none"
 	date    = "unknown"
 	builtBy = "unknown"
+
+	dbErrors = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "metie_db_errors_total",
+		Help: "The total number of database errors",
+	})
 )
 
 func doWork(ctx context.Context, opts *Options) {
@@ -33,11 +43,19 @@ func doWork(ctx context.Context, opts *Options) {
 	}
 
 	if err := db.WriteRow(ctx, fc, opts.DSN, opts.Table); err != nil {
+		dbErrors.Inc()
 		log.Printf("error: cannot write row to database: %s", err)
 	}
 }
 
+func doMetrics() {
+	http.Handle("/metrics", promhttp.Handler())
+	http.ListenAndServe(*metricsAddr, nil)
+}
+
 func runForever(opts *Options) error {
+	go doMetrics()
+
 	tick := time.NewTicker(time.Duration(opts.Interval))
 	defer tick.Stop()
 
