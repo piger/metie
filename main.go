@@ -54,19 +54,20 @@ func doMetrics() {
 	http.ListenAndServe(*metricsAddr, nil)
 }
 
-func runForever(opts *Options) error {
+func runForever(ctx context.Context, opts *Options) error {
 	go doMetrics()
 
 	timer := time.NewTimer(1 * time.Millisecond)
 	defer timer.Stop()
 
-	ctx, ctxCancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	ctx, ctxCancel := signal.NotifyContext(ctx, os.Interrupt, syscall.SIGTERM)
 	defer ctxCancel()
 
 Loop:
 	for {
 		select {
 		case <-timer.C:
+			slog.Debug("fetching forecast")
 			doWork(ctx, opts)
 			timer.Reset(time.Duration(opts.Interval))
 		case <-ctx.Done():
@@ -79,8 +80,7 @@ Loop:
 	return nil
 }
 
-func runOnce(opts *Options) error {
-	ctx := context.Background()
+func runOnce(ctx context.Context, opts *Options) error {
 	fc, err := api.FetchForecast(ctx, opts.Latitude, opts.Longitude)
 	if err != nil {
 		return err
@@ -116,11 +116,13 @@ func run() error {
 		return nil
 	}
 
+	ctx := context.Background()
+
 	if *dryrun {
-		return runOnce(opts)
+		return runOnce(ctx, opts)
 	}
 
-	return runForever(opts)
+	return runForever(ctx, opts)
 }
 
 func main() {
