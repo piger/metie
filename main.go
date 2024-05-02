@@ -57,23 +57,18 @@ func doMetrics() {
 func runForever(opts *Options) error {
 	go doMetrics()
 
-	tick := time.NewTicker(time.Duration(opts.Interval))
-	defer tick.Stop()
+	timer := time.NewTimer(1 * time.Millisecond)
+	defer timer.Stop()
 
 	ctx, ctxCancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer ctxCancel()
 
-	// buffered channel used to trigger the first execution of the task
-	firstRun := make(chan struct{}, 1)
-	firstRun <- struct{}{}
-
 Loop:
 	for {
 		select {
-		case <-firstRun:
+		case <-timer.C:
 			doWork(ctx, opts)
-		case <-tick.C:
-			doWork(ctx, opts)
+			timer.Reset(time.Duration(opts.Interval))
 		case <-ctx.Done():
 			ctxCancel()
 			slog.Info("signal received; exiting")
