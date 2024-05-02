@@ -4,7 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
@@ -38,13 +38,14 @@ var (
 func doWork(ctx context.Context, opts *Options) {
 	fc, err := api.FetchForecast(ctx, opts.Latitude, opts.Longitude)
 	if err != nil {
-		log.Printf("error: cannot fetch forecast: %s", err)
+		slog.Error("failed fetching forecast", "err", err)
 		return
 	}
 
 	if err := db.WriteRow(ctx, fc, opts.DSN, opts.Table); err != nil {
 		dbErrors.Inc()
-		log.Printf("error: cannot write row to database: %s", err)
+		slog.Error("failed writing to database", "err", err)
+		return
 	}
 }
 
@@ -75,7 +76,7 @@ Loop:
 			doWork(ctx, opts)
 		case <-ctx.Done():
 			ctxCancel()
-			log.Println("signal received; exiting.")
+			slog.Info("signal received; exiting")
 			break Loop
 		}
 	}
@@ -103,7 +104,7 @@ func run() error {
 
 	opts, err := readConfig(*configFile)
 	if err != nil {
-		return fmt.Errorf("error: invalid configuration: %w", err)
+		return fmt.Errorf("invalid configuration: %w", err)
 	}
 
 	if *showVersion {
@@ -128,7 +129,11 @@ func run() error {
 }
 
 func main() {
+	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
+	slog.SetDefault(logger)
+
 	if err := run(); err != nil {
-		log.Fatal(err)
+		slog.Error("error", "err", err)
+		os.Exit(1)
 	}
 }
