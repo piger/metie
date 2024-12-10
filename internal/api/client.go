@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	baseURL        = "http://metwdb-openaccess.ichec.ie/metno-wdb2ts/locationforecast?lat=${lat};long=${long};from=${now};to=${later}"
+	baseURL        = "http://openaccess.pf.api.met.ie/metno-wdb2ts/locationforecast?lat=${lat};long=${long};from=${now};to=${later}"
 	dateTimeFormat = "2006-01-02T15:04"
 )
 

@@ -69,9 +69,9 @@ func TestParseForecast(t *testing.T) {
 	}
 
 	ex := Forecast{
-		Temperature:     9.3,
-		Humidity:        83.3,
-		RainProbability: 41.2,
+		Temperature:     7.7,
+		Humidity:        63.799999,
+		RainProbability: 0,
 	}
 
 	if fc.Temperature != ex.Temperature {

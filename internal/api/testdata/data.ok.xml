@@ -1,29 +1,51 @@
-<weatherdata xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://api.met.no/weatherapi/locationforecast/1.9/schema" created="2024-03-13T19:00:40Z">
+<weatherdata xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://www.met.ie/Open_Data/weatherapi-0.4.xsd" created="2024-12-10T18:00:32Z">
    <meta>
-      <model name="harmonie" termin="2024-03-13T12:00:00Z" runended="2024-03-13T15:17:31Z" nextrun="2024-03-13T22:00:00Z" from="2024-03-13T19:00:00Z" to="2024-03-13T19:00:00Z" />
+      <model name="harmonie" termin="2024-12-10T12:00:00Z" runended="2024-12-10T15:41:04Z" nextrun="2024-12-10T22:00:00Z" from="2024-12-10T18:00:00Z" to="2024-12-10T19:00:00Z" />
       </meta>
    <product class="pointData">
-      <time datatype="forecast" from="2024-03-13T19:00:00Z" to="2024-03-13T19:00:00Z">
-         <location altitude="22" latitude="53.3375" longitude="-6.2597">
-            <temperature id="TTT" unit="celsius" value="9.3"/>
-            <windDirection id="dd" deg="242.6" name="SW"/>
-            <windSpeed id="ff" mps="2.5" beaufort="2" name="Svak vind"/>
-            <windGust id="ff_gust" mps="7.4"/>
-            <globalRadiation value="1.8" unit="W/m^2"/>
-            <humidity value="83.3" unit="percent"/>
-            <pressure id="pr" unit="hPa" value="1005.2"/>
-            <cloudiness id="NN" percent="100.0"/>
-            <lowClouds id="LOW" percent="6.9"/>
+      <time datatype="forecast" from="2024-12-10T18:00:00Z" to="2024-12-10T18:00:00Z">
+         <location altitude="18" latitude="53.3375" longitude="-6.2597">
+            <temperature id="TTT" unit="celsius" value="7.7"/>
+            <windDirection id="dd" deg="40.5" name="NE"/>
+            <windSpeed id="ff" mps="3.1" beaufort="2" name="Light breeze"/>
+            <windGust id="ff_gust" mps="6.1"/>
+            <globalRadiation value="0.0" unit="W/m^2"/>
+            <humidity value="63.8" unit="percent"/>
+            <pressure id="pr" unit="hPa" value="1037.9"/>
+            <cloudiness id="NN" percent="95.3"/>
+            <lowClouds id="LOW" percent="95.3"/>
             <mediumClouds id="MEDIUM" percent="0.0"/>
-            <highClouds id="HIGH" percent="100.0"/>
-            <dewpointTemperature id="TD" unit="celsius" value="6.5"/>
+            <highClouds id="HIGH" percent="0.0"/>
+            <dewpointTemperature id="TD" unit="celsius" value="1.1"/>
          </location>
       </time>
-      <time datatype="forecast" from="2024-03-13T18:00:00Z" to="2024-03-13T19:00:00Z">
-         <location altitude="22" latitude="53.3375" longitude="-6.2597">
-            <precipitation unit="mm" value="0.3" minvalue="0.2" maxvalue="0.5" probability="41.2"/>
-<symbol id="LightRain" number="9"/>
+      <time datatype="forecast" from="2024-12-10T17:00:00Z" to="2024-12-10T18:00:00Z">
+         <location altitude="18" latitude="53.3375" longitude="-6.2597">
+            <precipitation unit="mm" value="0.0" minvalue="0.0" maxvalue="0.0" probability="0.0"/>
+<symbol id="Cloud" number="4"/>
+         </location>
+      </time>
+      <time datatype="forecast" from="2024-12-10T19:00:00Z" to="2024-12-10T19:00:00Z">
+         <location altitude="18" latitude="53.3375" longitude="-6.2597">
+            <temperature id="TTT" unit="celsius" value="7.5"/>
+            <windDirection id="dd" deg="54.1" name="NE"/>
+            <windSpeed id="ff" mps="3.5" beaufort="3" name="Gentle breeze"/>
+            <windGust id="ff_gust" mps="6.3"/>
+            <globalRadiation value="0.0" unit="W/m^2"/>
+            <humidity value="65.0" unit="percent"/>
+            <pressure id="pr" unit="hPa" value="1038.1"/>
+            <cloudiness id="NN" percent="97.6"/>
+            <lowClouds id="LOW" percent="97.6"/>
+            <mediumClouds id="MEDIUM" percent="0.0"/>
+            <highClouds id="HIGH" percent="0.0"/>
+            <dewpointTemperature id="TD" unit="celsius" value="1.2"/>
+         </location>
+      </time>
+      <time datatype="forecast" from="2024-12-10T18:00:00Z" to="2024-12-10T19:00:00Z">
+         <location altitude="18" latitude="53.3375" longitude="-6.2597">
+            <precipitation unit="mm" value="0.0" minvalue="0.0" maxvalue="0.0" probability="0.0"/>
+<symbol id="Cloud" number="4"/>
          </location>
       </time>
    </product>
-</weatherdata>
+</weatherdata> 
