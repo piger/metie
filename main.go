@@ -33,11 +33,20 @@ var (
 		Name: "metie_db_errors_total",
 		Help: "The total number of database errors",
 	})
+	reqSuccess = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "metie_requests_success_total",
+		Help: "The total number of successful requests",
+	})
+	reqError = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "metie_requests_error_total",
+		Help: "The total number of failed requests",
+	})
 )
 
 func doWork(ctx context.Context, opts *Options) {
 	fc, err := api.FetchForecast(ctx, opts.Latitude, opts.Longitude)
 	if err != nil {
+		reqError.Inc()
 		slog.Error("failed fetching forecast", "err", err)
 		return
 	}
@@ -47,6 +56,7 @@ func doWork(ctx context.Context, opts *Options) {
 		slog.Error("failed writing to database", "err", err)
 		return
 	}
+	reqSuccess.Inc()
 }
 
 func doMetrics() {
