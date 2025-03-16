@@ -7,7 +7,7 @@ toolchain go1.24.0
 require (
 	github.com/jackc/pgx/v5 v5.7.2
 	github.com/pelletier/go-toml/v2 v2.2.3
-	github.com/prometheus/client_golang v1.21.0
+	github.com/prometheus/client_golang v1.21.1
 	golang.org/x/net v0.37.0
 )
 
